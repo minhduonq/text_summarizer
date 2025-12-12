@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer - AI-Powered</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 AI Text Summarizer</h1>
+            <p class="subtitle">Summarize articles, web pages, and documents with AI</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('text')">Text</button>
+            <button class="tab-button" onclick="showTab('url')">URL</button>
+            <button class="tab-button" onclick="showTab('file')">File</button>
+            <button class="tab-button" onclick="showTab('chat')">💬 Chat</button>
+        </div>
+
+        <!-- Text Tab -->
+        <div id="text-tab" class="tab-content active">
+            <div class="input-section">
+                <label for="text-input">Enter or paste your text:</label>
+                <textarea id="text-input" placeholder="Paste your English text here..."></textarea>
+
+                <div class="controls">
+                    <label>
+                        Summary Length:
+                        <select id="text-length">
+                            <option value="short">Short</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="detailed">Detailed</option>
+                        </select>
+                    </label>
+                    <button onclick="summarizeText()" class="btn-primary">Summarize</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL Tab -->
+        <div id="url-tab" class="tab-content">
+            <div class="input-section">
+                <label for="url-input">Enter article URL:</label>
+                <input type="url" id="url-input" placeholder="https://example.com/article">
+
+                <div class="controls">
+                    <label>
+                        Summary Length:
+                        <select id="url-length">
+                            <option value="short">Short</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="detailed">Detailed</option>
+                        </select>
+                    </label>
+                    <button onclick="summarizeUrl()" class="btn-primary">Summarize</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Tab -->
+        <div id="file-tab" class="tab-content">
+            <div class="input-section">
+                <label for="file-input">Upload file (PDF, TXT, DOCX):</label>
+                <input type="file" id="file-input" accept=".pdf,.txt,.docx">
+
+                <div class="controls">
+                    <label>
+                        Summary Length:
+                        <select id="file-length">
+                            <option value="short">Short</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="detailed">Detailed</option>
+                        </select>
+                    </label>
+                    <button onclick="summarizeFile()" class="btn-primary">Summarize</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat-tab" class="tab-content">
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="welcome-message">
+                        👋 Welcome! Start a conversation about any document or topic.
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <textarea id="chat-input" placeholder="Type your message here..." rows="3"
+                        onkeypress="handleChatKeyPress(event)"></textarea>
+                    <button onclick="sendChatMessage()" class="btn-primary">Send</button>
+                    <button onclick="clearChat()" class="btn-secondary">Clear Chat</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Generating summary...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="results hidden">
+            <h2>Summary</h2>
+            <div id="summary-text" class="summary-box"></div>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">Original Words:</span>
+                    <span id="original-words" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Summary Words:</span>
+                    <span id="summary-words" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Compression:</span>
+                    <span id="compression" class="stat-value">-</span>
+                </div>
+            </div>
+
+            <button onclick="copyToClipboard()" class="btn-secondary">Copy Summary</button>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error" class="error hidden"></div>
+    </div>
+
+    <footer>
+        <p>Powered by AI | <a href="/docs" target="_blank">API Docs</a></p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# AI/ML
+transformers
+torch
+
+# Web Scraping
+beautifulsoup4
+newspaper3k
+requests
+lxml
+
+# File Processing
+PyPDF2
+python-docx
+
+# Database
+sqlalchemy
+
+# Utilities
+python-dotenv
+pydantic
+pydantic-settings
+
+# Testing
+pytest
+httpx

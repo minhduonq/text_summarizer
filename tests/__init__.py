@@ -1,0 +1,3 @@
+import pytest
+
+# Configure pytest
