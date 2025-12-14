@@ -9,9 +9,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
-from api import summarizer, health, chat
+from api import summarizer, health, chat, auth
 from config.settings import settings
 from utils.logger import setup_logger
+from models.database import init_db
 
 # Setup logger
 logger = setup_logger(__name__)
@@ -34,6 +35,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, prefix="/api/v1", tags=["Health"])
+app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(summarizer.router, prefix="/api/v1", tags=["Summarizer"])
 app.include_router(chat.router, prefix="/api/v1", tags=["Chat"])
 
@@ -54,6 +56,13 @@ async def startup_event():
     """Initialize resources on startup"""
     logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
     logger.info(f"Debug mode: {settings.DEBUG}")
+    
+    # Initialize database
+    try:
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {str(e)}")
 
 @app.on_event("shutdown")
 async def shutdown_event():

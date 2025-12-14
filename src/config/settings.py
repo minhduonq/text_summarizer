@@ -15,14 +15,19 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
-    # Model
-    MODEL_NAME: str = "facebook/bart-large-cnn"
-    MODEL_CACHE_DIR: str = "./models"
-    MAX_INPUT_LENGTH: int = 1024
-    MAX_SUMMARY_LENGTH: int = 150
+    # AI Model - Google Gemini
+    GEMINI_API_KEY: str = "your-gemini-api-key-here"
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+    MAX_INPUT_LENGTH: int = 30000  # Gemini has higher token limit
+    MAX_SUMMARY_LENGTH: int = 2000
     
     # Database
     DATABASE_URL: str = "sqlite:///./data/summarizer.db"
+    
+    # Authentication
+    SECRET_KEY: str = "your-secret-key-here-change-in-production-min-32-chars"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
     # Logging
     LOG_LEVEL: str = "INFO"
@@ -31,6 +36,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"
 
 
 settings = Settings()

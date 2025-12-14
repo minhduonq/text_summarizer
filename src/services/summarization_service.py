@@ -1,26 +1,26 @@
 """
-Service for text summarization business logic
+Service for text summarization business logic using Google Gemini
 """
 from typing import Literal
 
-from models.summarizer import summarizer_model
+from models.summarizer import gemini_model
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
 
 class SummarizationService:
-    """Service for handling text summarization"""
+    """Service for handling text summarization with Gemini"""
     
-    # Length presets
+    # Length presets (adjusted for Gemini's capabilities)
     LENGTH_CONFIGS = {
-        "short": {"max_length": 80, "min_length": 20},
-        "medium": {"max_length": 150, "min_length": 40},
-        "detailed": {"max_length": 250, "min_length": 80},
+        "short": {"max_length": 100, "min_length": 30, "style": "concise"},
+        "medium": {"max_length": 200, "min_length": 60, "style": "concise"},
+        "detailed": {"max_length": 400, "min_length": 100, "style": "detailed"},
     }
     
     def __init__(self):
-        self.model = summarizer_model
+        self.model = gemini_model
     
     async def summarize(
         self,
@@ -28,7 +28,7 @@ class SummarizationService:
         length: Literal["short", "medium", "detailed"] = "medium"
     ) -> str:
         """
-        Summarize text with specified length preset
+        Summarize text with specified length preset using Gemini
         
         Args:
             text: Input text to summarize
@@ -43,16 +43,17 @@ class SummarizationService:
         # Get length configuration
         config = self.LENGTH_CONFIGS.get(length, self.LENGTH_CONFIGS["medium"])
         
-        logger.info(f"Summarizing text with length preset: {length}")
+        logger.info(f"Summarizing text with Gemini (length preset: {length})")
         
         try:
             summary = self.model.summarize(
                 text=text,
                 max_length=config["max_length"],
-                min_length=config["min_length"]
+                min_length=config["min_length"],
+                style=config["style"]
             )
             
-            logger.info(f"Summary generated successfully")
+            logger.info(f"Summary generated successfully with Gemini")
             return summary
         except Exception as e:
             logger.error(f"Summarization failed: {str(e)}")

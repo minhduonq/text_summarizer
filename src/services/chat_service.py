@@ -1,10 +1,11 @@
 """
-Service for managing conversational chat with context
+Service for managing conversational chat with context using Google Gemini
 """
 from typing import List, Dict, Optional
 from datetime import datetime
 import uuid
 
+from models.summarizer import gemini_model
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -132,12 +133,27 @@ class ChatService:
         session: ChatSession
     ) -> str:
         """
-        Generate response using LLM
-        (This is a placeholder - integrate with your actual model)
+        Generate response using Google Gemini
         """
-        # TODO: Replace with actual LLM call (OpenAI, Hugging Face, etc.)
-        # For now, return a simple response
-        return f"I understand your message. This is a placeholder response. In production, this would use an LLM to generate a contextual response based on the conversation history."
+        try:
+            # Extract context and history from session
+            context = None
+            history = session.get_history()
+            
+            # Get user's last message
+            last_message = history[-1]["content"] if history else prompt
+            
+            # Use Gemini to generate response
+            response = gemini_model.chat(
+                message=last_message,
+                context=context,
+                conversation_history=history[:-1]  # Exclude current message
+            )
+            
+            return response
+        except Exception as e:
+            logger.error(f"Error generating response: {str(e)}")
+            return "I apologize, but I encountered an error while processing your request. Please try again."
 
 
 # Global instance
