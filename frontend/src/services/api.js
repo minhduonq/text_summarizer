@@ -54,6 +54,22 @@ export const summarizerAPI = {
 }
 
 export const chatAPI = {
+    // Session management
+    createSession: (data) => api.post('/chat/sessions', data),
+    getSessions: () => api.get('/chat/sessions'),
+    deleteSession: (sessionId) => api.delete(`/chat/sessions/${sessionId}`),
+    updateSessionTitle: (sessionId, title) => api.patch(`/chat/sessions/${sessionId}/title`, { title }),
+
+    // Messaging
+    sendMessage: (sessionId, data) => api.post(`/chat/sessions/${sessionId}/messages`, data),
+    sendMessageWithFile: (sessionId, formData) => api.post(
+        `/chat/sessions/${sessionId}/messages/file`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+    ),
+    getSessionHistory: (sessionId) => api.get(`/chat/sessions/${sessionId}/history`),
+
+    // Legacy
     chat: (data) => api.post('/chat', data),
     getChatHistory: () => api.get('/chat/history'),
 }

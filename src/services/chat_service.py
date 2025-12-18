@@ -1,72 +1,52 @@
 """
-Service for managing conversational chat with context using Google Gemini
+Service for managing conversational chat with context using Google Gemini and database
 """
 from typing import List, Dict, Optional
-from datetime import datetime
-import uuid
+from sqlalchemy.orm import Session
 
 from models.summarizer import gemini_model
+from services.chat_repository import ChatRepository
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
 
-class ChatSession:
-    """Represents a chat session with conversation history"""
-    
-    def __init__(self, session_id: str = None):
-        self.session_id = session_id or str(uuid.uuid4())
-        self.messages: List[Dict] = []
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
-    
-    def add_message(self, role: str, content: str):
-        """Add a message to the conversation history"""
-        self.messages.append({
-            "role": role,  # "user" or "assistant"
-            "content": content,
-            "timestamp": datetime.utcnow().isoformat()
-        })
-        self.updated_at = datetime.utcnow()
-    
-    def get_history(self, limit: Optional[int] = None) -> List[Dict]:
-        """Get conversation history"""
-        if limit:
-            return self.messages[-limit:]
-        return self.messages
-    
-    def clear_history(self):
-        """Clear conversation history"""
-        self.messages = []
-        self.updated_at = datetime.utcnow()
-
-
 class ChatService:
-    """Service for handling conversational chat"""
+    """Service for handling conversational chat with database persistence"""
     
     def __init__(self):
-        # In-memory storage for sessions (use database in production)
-        self.sessions: Dict[str, ChatSession] = {}
+        self.repository = ChatRepository
     
-    def create_session(self) -> str:
-        """Create a new chat session"""
-        session = ChatSession()
-        self.sessions[session.session_id] = session
-        logger.info(f"Created chat session: {session.session_id}")
+    def create_session(self, db: Session, user_id: int, title: Optional[str] = None) -> str:
+        """
+        Create a new chat session
+        
+        Args:
+            db: Database session
+            user_id: ID of the user creating the session
+            title: Optional title for the session
+            
+        Returns:
+            Session ID
+        """
+        session = self.repository.create_session(db, user_id, title)
         return session.session_id
     
-    def get_session(self, session_id: str) -> Optional[ChatSession]:
-        """Get a chat session by ID"""
-        return self.sessions.get(session_id)
+    def get_user_sessions(self, db: Session, user_id: int):
+        """Get all chat sessions for a user"""
+        return self.repository.get_user_sessions(db, user_id)
     
-    def delete_session(self, session_id: str):
+    def delete_session(self, db: Session, session_id: str):
         """Delete a chat session"""
-        if session_id in self.sessions:
-            del self.sessions[session_id]
-            logger.info(f"Deleted chat session: {session_id}")
+        return self.repository.delete_session(db, session_id)
+    
+    def update_session_title(self, db: Session, session_id: str, title: str):
+        """Update session title"""
+        return self.repository.update_session_title(db, session_id, title)
     
     async def chat(
         self,
+        db: Session,
         session_id: str,
         message: str,
         context: Optional[str] = None
@@ -75,6 +55,7 @@ class ChatService:
         Process a chat message with conversation history
         
         Args:
+            db: Database session
             session_id: Chat session ID
             message: User message
             context: Optional context (e.g., summarized document)
@@ -82,72 +63,68 @@ class ChatService:
         Returns:
             Assistant response
         """
-        session = self.get_session(session_id)
+        # Verify session exists
+        session = self.repository.get_session_by_id(db, session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
         
-        # Add user message to history
-        session.add_message("user", message)
+        # Auto-update session title from first user message
+        if session.title in [None, "", "Hội thoại mới", "New Conversation"]:
+            # Get message count to check if this is the first message
+            message_count = len(session.messages) if session.messages else 0
+            if message_count == 0:
+                # Use first 200 characters of user message as title
+                title = message[:200].strip()
+                if len(message) > 200:
+                    title += "..."
+                self.repository.update_session_title(db, session_id, title)
+                logger.info(f"Auto-updated session {session_id} title: {title}")
         
-        # Build prompt with context and history
-        prompt = self._build_prompt(session, message, context)
+        # Add user message to database
+        self.repository.add_message(db, session_id, "user", message)
         
-        # Generate response (simplified - replace with actual LLM call)
-        response = await self._generate_response(prompt, session)
+        # Get conversation history
+        messages = self.repository.get_session_messages(db, session_id, limit=10)
+        history = [
+            {"role": msg.role, "content": msg.content}
+            for msg in messages
+        ]
         
-        # Add assistant response to history
-        session.add_message("assistant", response)
+        # Generate response using Gemini
+        response = await self._generate_response(message, history, context)
+        
+        # Add assistant response to database
+        self.repository.add_message(db, session_id, "assistant", response)
         
         return response
     
-    def _build_prompt(
-        self,
-        session: ChatSession,
-        message: str,
-        context: Optional[str]
-    ) -> str:
-        """Build prompt with context and conversation history"""
-        prompt_parts = []
-        
-        # Add context if provided
-        if context:
-            prompt_parts.append(f"Context: {context}\n")
-        
-        # Add conversation history (last 5 messages)
-        history = session.get_history(limit=5)
-        if history:
-            prompt_parts.append("Conversation history:")
-            for msg in history[:-1]:  # Exclude current message
-                role = msg["role"].capitalize()
-                prompt_parts.append(f"{role}: {msg['content']}")
-        
-        # Add current message
-        prompt_parts.append(f"\nUser: {message}")
-        prompt_parts.append("Assistant:")
-        
-        return "\n".join(prompt_parts)
+    def get_session_history(self, db: Session, session_id: str):
+        """Get all messages for a session"""
+        return self.repository.get_session_messages(db, session_id)
     
     async def _generate_response(
         self,
-        prompt: str,
-        session: ChatSession
+        message: str,
+        history: List[Dict],
+        context: Optional[str]
     ) -> str:
         """
         Generate response using Google Gemini
+        
+        Args:
+            message: Current user message
+            history: Conversation history
+            context: Optional context
+            
+        Returns:
+            Generated response
         """
         try:
-            # Extract context and history from session
-            context = None
-            history = session.get_history()
-            
-            # Get user's last message
-            last_message = history[-1]["content"] if history else prompt
-            
             # Use Gemini to generate response
             response = gemini_model.chat(
-                message=last_message,
+                message=message,
                 context=context,
-                conversation_history=history[:-1]  # Exclude current message
+                conversation_history=history[:-1] if history else []  # Exclude current message
             )
             
             return response

@@ -16,8 +16,8 @@ class Settings(BaseSettings):
     PORT: int = 8000
     
     # AI Model - Google Gemini
-    GEMINI_API_KEY: str = "your-gemini-api-key-here"
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_API_KEY: str = "AIzaSyCSgNgbP-ZSOpVMIglq1kONqtcC2oWdTv0"
+    GEMINI_MODEL: str = "models/gemini-2.5-flash"
     MAX_INPUT_LENGTH: int = 30000  # Gemini has higher token limit
     MAX_SUMMARY_LENGTH: int = 2000
     
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./data/summarizer.db"
     
     # Authentication
-    SECRET_KEY: str = "your-secret-key-here-change-in-production-min-32-chars"
+    SECRET_KEY: str = "SECRET"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     

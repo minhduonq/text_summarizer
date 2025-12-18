@@ -4,7 +4,7 @@ Authentication service for user management
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -15,9 +15,6 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 class AuthService:
     """Service class for authentication operations"""
@@ -25,12 +22,21 @@ class AuthService:
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         """Verify a plain password against a hashed password"""
-        return pwd_context.verify(plain_password, hashed_password)
+        try:
+            return bcrypt.checkpw(
+                plain_password.encode('utf-8'),
+                hashed_password.encode('utf-8')
+            )
+        except Exception as e:
+            logger.error(f"Password verification error: {e}")
+            return False
     
     @staticmethod
     def get_password_hash(password: str) -> str:
-        """Generate password hash"""
-        return pwd_context.hash(password)
+        """Generate password hash using bcrypt"""
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
     
     @staticmethod
     def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

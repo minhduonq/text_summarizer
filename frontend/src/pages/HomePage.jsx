@@ -180,10 +180,10 @@ const HomePage = () => {
                             <FaFileAlt /> Tóm tắt văn bản
                         </button>
                         <button
-                            className={`nav-item ${activeView === 'chat' ? 'active' : ''}`}
-                            onClick={() => setActiveView('chat')}
+                            className="nav-item"
+                            onClick={() => navigate('/chat')}
                         >
-                            <FaComments /> AI Chat
+                            <FaComments /> AI Chat (Nâng cao)
                         </button>
                         <button
                             className={`nav-item ${activeView === 'history' ? 'active' : ''}`}

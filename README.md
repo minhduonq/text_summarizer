@@ -4,21 +4,25 @@
 
 ## Tính năng
 
-- ✅ Tóm tắt văn bản trực tiếp
+- ✅ Tóm tắt văn bản trực tiếp với Google Gemini 1.5 Flash
 - ✅ Tóm tắt từ URL (web scraping)
 - ✅ Tóm tắt file (PDF, TXT, DOCX)
 - ✅ Nhiều độ dài tóm tắt (short, medium, detailed)
-- ✅ REST API
-- ✅ Web UI đơn giản
 - ✅ **Đăng ký và đăng nhập user (JWT Authentication)**
 - ✅ **Bảo mật API với token-based authentication**
+- ✅ **Chat AI với Gemini (lưu lịch sử vào database)**
+- ✅ **Quản lý chat sessions (tạo, xem, xóa)**
+- ✅ **Database persistence với SQLAlchemy**
+- ✅ REST API
+- ✅ Web UI đơn giản
 
 ## Tech Stack
 
 - **Backend**: Python 3.8+, FastAPI
-- **AI Model**: Hugging Face Transformers (BART/T5/Pegasus)
+- **AI Model**: Google Gemini 1.5 Flash API
+- **Database**: SQLite với SQLAlchemy ORM
+- **Authentication**: JWT (JSON Web Tokens) với passlib & python-jose
 - **Web Scraping**: BeautifulSoup4, newspaper3k
-- **Database**: SQLite
 - **Frontend**: HTML, CSS, JavaScript
 
 ## Cấu trúc dự án
@@ -53,11 +57,25 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
+# Cấu hình Gemini API key trong .env
+# Lấy API key tại: https://aistudio.google.com/app/apikey
+# Mở file .env và thay GEMINI_API_KEY
+
 # Chạy ứng dụng
-python src/main.py
+cd src
+python main.py
 ```
 
 Truy cập: http://localhost:8000
+
+## Database
+
+Database SQLite sẽ tự động được tạo khi chạy lần đầu tại `data/summarizer.db`.
+
+Các tables:
+- `users` - Thông tin user
+- `chat_sessions` - Các phiên chat
+- `messages` - Tin nhắn trong chat
 
 ## API Documentation
 
@@ -71,7 +89,10 @@ Swagger UI: http://localhost:8000/docs
 - **GET** `/api/v1/auth/me` - Lấy thông tin user hiện tại (cần token)
 - **GET** `/api/v1/auth/verify` - Xác thực token
 
-Chi tiết: Xem [AUTHENTICATION.md](docs/AUTHENTICATION.md)
+Chi tiết: 
+- [AUTHENTICATION.md](docs/AUTHENTICATION.md) - Authentication API
+- [CHAT_API.md](docs/CHAT_API.md) - Chat với database
+- [GEMINI_MIGRATION.md](docs/GEMINI_MIGRATION.md) - Migration từ local model
 
 ### Quick Start với Authentication
 

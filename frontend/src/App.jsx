@@ -4,7 +4,9 @@ import { AuthProvider } from './contexts/AuthContext'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import HomePage from './pages/HomePage'
+import SummarizePage from './pages/SummarizePage'
+import HistoryPage from './pages/HistoryPage'
+import ChatPage from './pages/ChatPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
 
@@ -18,9 +20,29 @@ function App() {
                     <Route path="/register" element={<RegisterPage />} />
                     <Route
                         path="/home"
+                        element={<Navigate to="/summarize" replace />}
+                    />
+                    <Route
+                        path="/summarize"
                         element={
                             <ProtectedRoute>
-                                <HomePage />
+                                <SummarizePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/history"
+                        element={
+                            <ProtectedRoute>
+                                <HistoryPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/chat"
+                        element={
+                            <ProtectedRoute>
+                                <ChatPage />
                             </ProtectedRoute>
                         }
                     />

@@ -31,7 +31,7 @@ const LandingPage = () => {
                         <a href="#pricing">Giá cả</a>
                         {isAuthenticated ? (
                             <Link to="/home" className="btn btn-primary">
-                                Vào ứng dụng
+                                Truy cập ngay
                             </Link>
                         ) : (
                             <>
