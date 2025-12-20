@@ -15,6 +15,17 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+import pytesseract
+import os
+
+pytesseract.pytesseract.tesseract_cmd = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+)
+
+os.environ["TESSDATA_PREFIX"] = (
+    r"C:\Program Files\Tesseract-OCR\tessdata"
+)
+
 
 class FileProcessorService:
     """Service for extracting text from uploaded files"""
@@ -64,7 +75,9 @@ class FileProcessorService:
         """Extract text from image-base PDF using OCR"""
 
         try:
-            images = convert_from_bytes(content)
+            # Specify poppler path for Windows
+            poppler_path = r"C:\poppler\poppler-24.08.0\Library\bin"
+            images = convert_from_bytes(content, poppler_path=poppler_path)
 
             text = ""
             for i, image in enumerate(images):
