@@ -2,26 +2,14 @@
 
 Ứng dụng AI để tóm tắt văn bản tiếng Anh, hỗ trợ tóm tắt bài báo và nội dung trang web.
 
-## Tính năng
+## Các tính năng chính
 
 - Tóm tắt văn bản trực tiếp với Google Gemini 2.5 Flash
 - Tóm tắt từ URL (web scraping)
 - Tóm tắt file (PDF, TXT, DOCX)
-- Nhiều độ dài tóm tắt (short, medium, detailed)
+- Nhiều độ dài tóm tắt (short, medium, detailed) 
 - Trò chuyện liên tục
 - Giao diện thân thiện, dễ sử dụng
-
-## Tech Stack
-
-- **Backend**: Python 3.8+, FastAPI
-- **AI Model**: Google Gemini 2.5 Flash API
-- **Database**: SQLite với SQLAlchemy ORM
-- **Authentication**: JWT (JSON Web Tokens) với passlib & python-jose
-- **Web Scraping**: BeautifulSoup4, newspaper3k
-- **Frontend**: HTML, CSS, JavaScript
-- **PDF Scanner**: PyPDF2, Tesseract
-
-
 
 ## Installation (Backend)
 
