@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     
     # AI Model - Google Gemini
-    GEMINI_API_KEY: str = "AIzaSyCkW2dILizwIDiqFuxjifXNtQ2QdxJEKA4"
+    GEMINI_API_KEY: str = "GEMINI-KEY (get from ai studio)"
     GEMINI_MODEL: str = "models/gemini-2.5-flash"
     MAX_INPUT_LENGTH: int = 30000  # Gemini has higher token limit
     MAX_SUMMARY_LENGTH: int = 2000
